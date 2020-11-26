@@ -44,7 +44,7 @@ while True:
     if vin == 0:
         vin = vout*5
     else:
-        vin = vin*0.5 + vout*5*0.5
+        vin = vin*0.9 + vout*5*0.1
     if vin < v_shutdown:
         btn_pushed = True
     if btn_pushed == True:
