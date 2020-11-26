@@ -7,5 +7,5 @@ Utilities for Raspberry Pi power management
 cd /home/pi
 git clone https://github.com/rinalim/PowerUtils
 cd PowerUtils
-sudo sh ./install.sh
+sudo sh ./install-battery-power.sh
 ```
