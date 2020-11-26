@@ -43,6 +43,8 @@ while True:
     vout = value*5.0/256
     if vin == 0:
         vin = vout*5
+    elif vout == 0:
+        vin = 0
     else:
         vin = vin*0.9 + vout*5*0.1
     if vin < v_shutdown:
