@@ -8,7 +8,7 @@ A3 = 0x43
 bus = smbus.SMBus(1)
 v_step = [9.6,10.1,10.6,11.1,11.6,12.1]
 
-INTERVAL = 1
+INTERVAL = 60
 PATH_BAT="/opt/retropie/configs/all/PowerUtils/"
 POS = "1221,11,1270,35"
 
