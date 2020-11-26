@@ -7,11 +7,9 @@ A2 = 0x42
 A3 = 0x43
 bus = smbus.SMBus(1)
 v_step = [9.6,10.1,10.6,11.1,11.6,12.1]
-v_shutdown = 9.0
 
 INTERVAL = 1
-RESET_COUNT = 3
-PATH_BAT="/home/pi/Battery/"
+PATH_BAT="/opt/retropie/configs/all/PowerUtils/"
 POS = "1221,11,1270,35"
 
 def get_step(vin):
@@ -34,24 +32,12 @@ os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
 os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30001 --win '" + POS + "' &")
 
 step_old = -1
-countdown = RESET_COUNT
-btn_pushed = False
+vin = 0
 while True:
     bus.write_byte(address,A0)
     value = bus.read_byte(address)
     vout = value*5.0/256
     vin = vout*5
-
-    if vin < v_shutdown:
-        btn_pushed = True
-    if btn_pushed == True:
-        if vin < v_shutdown:
-            countdown = countdown-1
-            if countdown < 0:
-                os.system("shutdown -h now")
-        else:
-            os.system("shutdown -r now")
-    
     step = get_step(vin)
     if step != step_old:
         step_old = step
