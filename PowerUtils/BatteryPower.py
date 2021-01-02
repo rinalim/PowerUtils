@@ -31,7 +31,7 @@ def get_step(vin):
         return 0
 
 os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
-os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30001 --win '" + POS + "' &")
+os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30003 --win '" + POS + "' &")
 
 step_old = -1
 countdown = RESET_COUNT
