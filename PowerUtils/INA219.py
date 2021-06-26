@@ -15,9 +15,14 @@ ina219.bus_voltage_range = BusVoltageRange.RANGE_16V
 
 v_step = [9.6,10.1,10.6,11.1,11.6,12.1]
 
-INTERVAL = 60
+INTERVAL = 10
 PATH_BAT="/opt/retropie/configs/all/PowerUtils/"
-POS = "1221,11,1270,35"
+
+def run_cmd(cmd):
+    # runs whatever in the cmd variable
+    p = Popen(cmd, shell=True, stdout=PIPE)
+    output = p.communicate()[0]
+    return output.decode()
 
 def get_step(vin):
     if vin > v_step[5]:
@@ -34,6 +39,12 @@ def get_step(vin):
         return 1
     else:
         return 0
+
+#POS = "1221,11,1270,35"
+fbset = run_cmd("fbset -s | grep mode | grep -v endmode | awk '{print $2}'").replace('"', '')
+res_x = fbset.split("x")[0]
+res_y = fbset.split("x")[1].replace('\n', '')
+POS = str(int(res_x)-60) + "," + "0" + "," + res_x + "," + "25"
 
 os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
 os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30003 --win '" + POS + "' &")
