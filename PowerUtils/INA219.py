@@ -1,11 +1,17 @@
-import smbus
-import time, os
-address = 0x48
-A0 = 0x40
-A1 = 0x41
-A2 = 0x42
-A3 = 0x43
-bus = smbus.SMBus(1)
+import time
+import board
+from adafruit_ina219 import ADCResolution, BusVoltageRange, INA219
+
+i2c_bus = board.I2C()
+
+ina219 = INA219(i2c_bus)
+
+# optional : change configuration to use 32 samples averaging for both bus voltage and shunt voltage
+ina219.bus_adc_resolution = ADCResolution.ADCRES_12BIT_32S
+ina219.shunt_adc_resolution = ADCResolution.ADCRES_12BIT_32S
+# optional : change voltage range to 16V
+ina219.bus_voltage_range = BusVoltageRange.RANGE_16V
+
 v_step = [9.6,10.1,10.6,11.1,11.6,12.1]
 
 INTERVAL = 60
@@ -34,11 +40,28 @@ os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -
 step_old = -1
 vin = 0
 while True:
-    bus.write_byte(address,A0)
-    value = bus.read_byte(address)
-    vout = value*5.0/256
-    vin = vout*5
-    step = get_step(vin)
+# measure and display loop
+while True:
+    bus_voltage = ina219.bus_voltage  # voltage on V- (load side)
+    shunt_voltage = ina219.shunt_voltage  # voltage between V+ and V- across the shunt
+    current = ina219.current  # current in mA
+    power = ina219.power  # power in watts
+    '''
+    # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
+    print("Voltage (VIN+) : {:6.3f}   V".format(bus_voltage + shunt_voltage))
+    print("Voltage (VIN-) : {:6.3f}   V".format(bus_voltage))
+    print("Shunt Voltage  : {:8.5f} V".format(shunt_voltage))
+    print("Shunt Current  : {:7.4f}  A".format(current / 1000))
+    print("Power Calc.    : {:8.5f} W".format(bus_voltage * (current / 1000)))
+    print("Power Register : {:6.3f}   W".format(power))
+    print("")
+
+    # Check internal calculations haven't overflowed (doesn't detect ADC overflows)
+    if ina219.overflow:
+        print("Internal Math Overflow Detected!")
+        print("")
+    '''
+    step = get_step(bus_voltage)
     if step != step_old:
         step_old = step
         png = str(step_old) + ".png"
