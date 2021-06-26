@@ -1,4 +1,5 @@
 sudo apt install python3-smbus -y
+sudo pip3 install adafruit-circuitpython-ina219
 
 rm -rf /opt/retropie/configs/all/PowerUtils/
 mkdir /opt/retropie/configs/all/PowerUtils/
