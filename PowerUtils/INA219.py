@@ -1,5 +1,6 @@
 import smbus
 import time, os
+from subprocess import *
 import board
 from adafruit_ina219 import ADCResolution, BusVoltageRange, INA219
 
