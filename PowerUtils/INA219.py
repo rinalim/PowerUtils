@@ -40,8 +40,6 @@ os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -
 step_old = -1
 vin = 0
 while True:
-# measure and display loop
-while True:
     bus_voltage = ina219.bus_voltage  # voltage on V- (load side)
     shunt_voltage = ina219.shunt_voltage  # voltage between V+ and V- across the shunt
     current = ina219.current  # current in mA
