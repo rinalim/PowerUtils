@@ -1,4 +1,5 @@
-import time
+import smbus
+import time, os
 import board
 from adafruit_ina219 import ADCResolution, BusVoltageRange, INA219
 
