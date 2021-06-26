@@ -45,7 +45,14 @@ def get_step(vin):
 fbset = run_cmd("fbset -s | grep mode | grep -v endmode | awk '{print $2}'").replace('"', '')
 res_x = fbset.split("x")[0]
 res_y = fbset.split("x")[1].replace('\n', '')
-POS = str(int(res_x)-60) + "," + "0" + "," + res_x + "," + "25"
+width = 60
+height = 25
+GAP = 10
+x1 = int(res_x)-width-GAP
+y1 = 0+GAP
+x2 = int(res_x)-GAP
+y2 = height + GAP
+POS = str(x1) + "," + str(y1) + "," + str(x2) + "," + str(y2)
 
 os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
 os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30003 --win '" + POS + "' &")
