@@ -49,7 +49,7 @@ res_y = fbset.split("x")[1].replace('\n', '')
 if os.path.isfile(PATH_BAT + "0.png") == False:
     print("Cannot find 0.png")
     sys.exit(0)
-width, height = Image.open(pngpath).size
+width, height = Image.open(PATH_BAT + "0.png").size
 x1 = int(res_x)-width-GAP
 y1 = 0+GAP
 x2 = int(res_x)-GAP
