@@ -1,6 +1,7 @@
 import smbus
 import time, os
 from subprocess import *
+from PIL import Image, ImageDraw, ImageFont
 import board
 from adafruit_ina219 import ADCResolution, BusVoltageRange, INA219
 
@@ -41,17 +42,19 @@ def get_step(vin):
     else:
         return 0
 
-#POS = "1221,11,1270,35"
+GAP = 10
 fbset = run_cmd("fbset -s | grep mode | grep -v endmode | awk '{print $2}'").replace('"', '')
 res_x = fbset.split("x")[0]
 res_y = fbset.split("x")[1].replace('\n', '')
-width = 60
-height = 25
-GAP = 10
+if os.path.isfile(PATH_BAT + "0.png") == False:
+    print("Cannot find 0.png")
+    sys.exit(0)
+width, height = Image.open(pngpath).size
 x1 = int(res_x)-width-GAP
 y1 = 0+GAP
 x2 = int(res_x)-GAP
 y2 = height + GAP
+#POS = "1221,11,1270,35"
 POS = str(x1) + "," + str(y1) + "," + str(x2) + "," + str(y2)
 
 os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
