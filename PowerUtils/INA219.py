@@ -1,7 +1,8 @@
 import smbus
-import time, os
+import time, os, sys
 from subprocess import *
 from PIL import Image, ImageDraw, ImageFont
+from resizeimage import resizeimage
 import board
 from adafruit_ina219 import ADCResolution, BusVoltageRange, INA219
 
@@ -18,7 +19,9 @@ ina219.bus_voltage_range = BusVoltageRange.RANGE_16V
 v_step = [9.4,10.0,10.6,11.1,11.6,12.1]
 
 INTERVAL = 10
-PATH_BAT="/opt/retropie/configs/all/PowerUtils/"
+PATH_BAT="/home/pi/PowerUtils/PowerUtils/"
+GAP = 10
+_width, _height = Image.open(PATH_BAT+"0.png").size
 
 def run_cmd(cmd):
     # runs whatever in the cmd variable
@@ -43,14 +46,44 @@ def get_step(vin):
     else:
         return 0, 0
 
-GAP = 10
+def get_concat_h(im1, im2):
+    #dst = Image.new('RGBA', (im1.width + im2.width, im1.height))
+    #dst.paste(im1, (0, 0))
+    dst = Image.new('RGBA', (im2.width*3, im2.height))
+    dst.paste(im1, (im2.width*2-im1.width, 0))
+    dst.paste(im2, (im2.width*2, 0))
+    return dst
+
+def get_concat_v(im1, im2):
+    dst = Image.new('RGBA', (im1.width, im1.height + im2.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (0, im1.height))
+    return dst
+
+def draw_text(text, infile, outfile):
+    text = text + " "
+    img_bat = Image.open(infile)
+    font_size = 50
+    font = ImageFont.truetype('FreeSans.ttf', font_size)
+    img = Image.new('RGBA', (font.getsize(str(text))[0], font.getsize(str(text))[1]), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    draw.text((0,0-img.height*0.07), text, font=font, fill="white")
+    img = resizeimage.resize_height(img, _height)
+    img.save("/tmp/text.png")
+    get_concat_h(img, img_bat).save(outfile)
+    #img.save(outfile)
+
 fbset = run_cmd("fbset -s | grep mode | grep -v endmode | awk '{print $2}'").replace('"', '')
 res_x = fbset.split("x")[0]
 res_y = fbset.split("x")[1].replace('\n', '')
+
 if os.path.isfile(PATH_BAT + "0.png") == False:
     print("Cannot find 0.png")
     sys.exit(0)
-width, height = Image.open(PATH_BAT + "0.png").size
+draw_text("---", PATH_BAT+"0.png", "/tmp/bat.png")
+os.system("echo /tmp/bat.png > /tmp/battery.txt")
+
+width, height = Image.open("/tmp/bat.png").size
 x1 = int(res_x)-width-GAP
 y1 = 0+GAP
 x2 = int(res_x)-GAP
@@ -59,19 +92,9 @@ y2 = height + GAP
 POS = str(x1) + "," + str(y1) + "," + str(x2) + "," + str(y2)
 
 os.system("pkill -ef omxiv-battery")
-os.system("echo " + PATH_BAT + "0.png > /tmp/battery.txt")
 os.system(PATH_BAT + "omxiv-battery /tmp/battery.txt -f -T blend --duration 20 -l 30003 --win '" + POS + "' &")
-def draw_text(text, infile, outfile):
-    font_size = 14
-    font = ImageFont.truetype('NanumBarunGothicBold.ttf', font_size)
-    #image = Image.new('RGBA', 
-    #        (font.getsize(str(text))[0]+width, font.getsize(str(text))[1]+height), 
-    #        (0, 0, 0, 0))
-    image = Image.open(infile)
-    draw = ImageDraw.Draw(image)
-    draw.fontmode = "1"
-    draw.text((3,6), text, font=font, fill="black")
-    image.save(outfile)
+
+time.sleep(10)
 
 step_old = -1
 percent_old = -1
